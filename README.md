@@ -5,5 +5,5 @@ it is a python webapp built to collect weather information and determine if ther
 
 ---
 # build process
-to build, run `npm start` in the root of the project.
+to build, first run an `npm install`, then run `npm start` in the root of the project.
 this project is hosted locally on `localhost:3000`.
