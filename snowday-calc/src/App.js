@@ -1,3 +1,4 @@
+//When select school, Oakland Community College runs off the tab
 import React from 'react';
 import './App.css';
 import PropTypes from 'prop-types';
@@ -77,14 +78,19 @@ class App extends React.Component {
   state = {
     modalOpen: false,
     completed: 54, //static value for now
-    states: 'USA',
-    cities: 'MI',
-    schools: 'Rochester',
+    states: '',
+    cities: '',
+    schools: '',
     date: 'mm/dd/yyyy',
   };
 
   handleClickOpen = () => {
-    this.setState({ modalOpen: true });
+	//Check if all fields are filled before opening dialog
+	if(this.state.states != '' && this.state.cities != '' && this.state.schools != '' && this.state.date != 'mm/dd/yyyy') {
+		this.setState({ modalOpen: true });
+	} else {
+		alert("Please fill out all the fields to calculate the chance of a snow day.");
+	}
   };
 
   handleClose = () => {
@@ -106,7 +112,7 @@ class App extends React.Component {
           <header className="app-header">
             <p>
               <i className="app-logo far fa-snowflake" alt="logo"></i>
-              <strong> Snow Day Calculator </strong>
+              <h1> Snow Day Calculator </h1>
               <i className="app-logo far fa-snowflake" alt="logo"></i></p>
           </header>
           <footer className="app-footer">
@@ -116,6 +122,9 @@ class App extends React.Component {
           label="Select a date"
           type="date"
           className={classes.textField}
+		  value={this.state.date}
+		  onChange={this.handleChange('date')}
+		  required="true"
           InputLabelProps={{
           shrink: true,
           }}
@@ -127,6 +136,7 @@ class App extends React.Component {
           className={classes.textField}
           value={this.state.states}
           onChange={this.handleChange('states')}
+		  required="true"
           SelectProps={{
             MenuProps: {
               className: classes.menu,
@@ -147,6 +157,7 @@ class App extends React.Component {
           className={classes.textField}
           value={this.state.cities}
           onChange={this.handleChange('cities')}
+		  required="true"
           SelectProps={{
             MenuProps: {
               className: classes.menu,
@@ -167,6 +178,7 @@ class App extends React.Component {
           className={classes.textField}
           value={this.state.schools}
           onChange={this.handleChange('schools')}
+		  required="true"
           SelectProps={{
             MenuProps: {
               className: classes.menu,
@@ -181,7 +193,7 @@ class App extends React.Component {
           ))}
         </TextField>
         </form>
-            <Button variant="outlined" className={classes.calc} onClick={this.handleClickOpen}>
+            <Button variant="contained" color="primary" className={classes.calc} onClick={this.handleClickOpen}>
               Calculate</Button>
             <Dialog
               open={this.state.modalOpen}
@@ -195,7 +207,7 @@ class App extends React.Component {
               </DialogTitle>
               <DialogContent>
                 <DialogContentText className={classes.modal} id="calc-dialog-slide-description">
-                    Based on your input, the chance of a snow day on (selected-date) for {this.state.schools} is {this.state.completed}%.
+                    Based on your input, the chance of a snow day on {this.state.date} for {this.state.schools} is {this.state.completed}%.
                 </DialogContentText>
                 <DialogContentText className={classes.progress}>
                     {this.state.completed}%
