@@ -29,11 +29,13 @@
 
 .prompt {
   font-size: small;
+  font-weight: bold;
 }
 
 .app-logo {
   animation: App-logo-spin infinite 5s linear;
-  padding: 5px;
+  padding: 10px;
+  color: #ffffff;
 } 
 
 @keyframes App-logo-spin {
