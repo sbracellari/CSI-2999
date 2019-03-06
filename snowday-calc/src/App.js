@@ -1,28 +1,263 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
 
-class App extends Component {
+import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Slide from '@material-ui/core/Slide';
+import MenuItem from '@material-ui/core/MenuItem';
+import PropTypes from 'prop-types';
+import TextField from '@material-ui/core/TextField';
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  calc: {
+    fontSize: 'medium',
+    marginTop: 20,
+  },
+  container: {
+    display: 'block',
+  },
+  textField: {
+    width: 300,
+    display: 'flex',
+  },
+  input: {
+    float: 'right',
+  },
+  dense: {
+    marginTop: 19,
+  },
+  menu: {
+    width: 200,
+  },
+  successModal: {
+    display: 'inline-block',
+    width: '70%',
+  },
+  errorModal: {
+    width: '100%',
+  },
+  progress: {
+    display: 'inline-block',
+    width: '20%',
+    marginLeft: '10%',
+    fontSize: 'xx-large',
+    color: '#0d387c',
+  },
+});
+
+const states = [
+  {
+    value: 'Michigan',
+    label: 'MI',
+  },
+];
+
+const cities = [
+  {
+    value: 'Rochester',
+    label: 'Rochester',
+  },
+];
+
+const schools = [
+  {
+    value: 'Rochester Adams',
+    label: 'Rochester Adams',
+  },
+  {
+    value: 'Oakland University',
+    label: 'Oakland University',
+  },
+  {
+    value: 'Oakland Community College',
+    label: 'Oakland Community College',
+  },
+];
+
+class App extends React.Component {
+  state = {
+    successModalOpen: false,
+    errorModalOpen: false,
+    percent: 54, //static value for now
+    states: '',
+    cities: '',
+    schools: '',
+    date: 'mm/dd/yyyy',
+  };
+
+  handleClickOpen = () => {
+    //Check if all fields are filled before opening dialog
+    if(this.state.states === '' || this.state.cities === '' || this.state.schools === '' || this.state.date === 'mm/dd/yyyy') {
+      this.setState({ errorModalOpen: true });
+    } else {
+      this.setState({ successModalOpen: true });
+    }
+  };
+
+  handleClose = () => {
+    this.setState({ successModalOpen: false });
+    this.setState({ errorModalOpen: false });
+  };
+ 
+  handleChange = name => event => {
+    this.setState({ [name]: event.target.value });
+  };
+
   render() {
+    const { classes } = this.props;
+
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+      <div>
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossOrigin="anonymous"></link>
+        
+        <div className="App">
+          <header className="app-header">
+            <div>
+              <i className="app-logo far fa-snowflake" alt="logo"></i>
+              <h3 className="snowday-header"> Snow Day Calculator </h3>
+              <i className="app-logo far fa-snowflake" alt="logo"></i>
+            </div>
+            <p className="prompt"> Input the following information to determine your chance of a snow day.</p>
+          </header>
+          <footer className="app-footer">
+          <form className={classes.container} noValidate autoComplete="off">
+          <TextField
+          id="date"
+          label="Select a date"
+          type="date"
+          className={classes.textField}
+		      value={this.state.date}
+		      onChange={this.handleChange('date')}
+		      required
+          InputLabelProps={{
+          shrink: true,
+          }}
+          />
+          <TextField
+          id="standard-select-state"
+          select
+          label="Select your state"
+          className={classes.textField}
+          value={this.state.states}
+          onChange={this.handleChange('states')}
+          required
+          SelectProps={{
+            MenuProps: {
+              className: classes.menu,
+            },
+          }}
+          margin="normal"
+        >
+          {states.map(option => (
+            <MenuItem key={option.value} value={option.value}>
+              {option.label}
+            </MenuItem>
+          ))}
+        </TextField>
+        <TextField
+          id="standard-select-city"
+          select
+          label="Select your city"
+          className={classes.textField}
+          value={this.state.cities}
+          onChange={this.handleChange('cities')}
+		      required
+          SelectProps={{
+            MenuProps: {
+              className: classes.menu,
+            },
+          }}
+          margin="normal"
+        >
+          {cities.map(option => (
+            <MenuItem key={option.value} value={option.value}>
+              {option.label}
+            </MenuItem>
+          ))}
+        </TextField>
+        <TextField
+          id="standard-select-school"
+          select
+          label="Select your school"
+          className={classes.textField}
+          value={this.state.schools}
+          onChange={this.handleChange('schools')}
+		      required
+          SelectProps={{
+            MenuProps: {
+              className: classes.menu,
+            },
+          }}
+          margin="normal"
+        >
+          {schools.map(option => (
+            <MenuItem key={option.value} value={option.value}>
+              {option.label}
+            </MenuItem>
+          ))}
+        </TextField>
+        </form>
+            <Button variant="contained" color="primary" className={classes.calc} onClick={this.handleClickOpen}>
+              Calculate</Button>
+            <Dialog
+              open={this.state.successModalOpen}
+              TransitionComponent={Slide}
+              keepMounted
+              onClose={this.handleClose}
+              aria-labelledby="calc-dialog-slide-title"
+              aria-describedby="calc-dialog-slide-description">
+              <DialogTitle id="calc-dialog-slide-title">
+                {"Your chances of a snow day are..."}
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText className={classes.successModal} id="calc-dialog-slide-description">
+                    Based on your input, the chance of a snow day on {this.state.date} for {this.state.schools} is {this.state.percent}%.
+                </DialogContentText>
+                <DialogContentText className={classes.progress}>
+                    {this.state.percent}%
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={this.handleClose} color="primary">
+                  Close
+                </Button>
+              </DialogActions>
+            </Dialog>
+            <Dialog 
+              open={this.state.errorModalOpen}
+              TransitionComponent={Slide}
+              keepMounted
+              onClose={this.handleClose}
+              aria-labelledby="calc-error-dialog-slide-title"
+              aria-describedby="calc-error-dialog-slide-description">
+              <DialogTitle id="calc-error-dialog-slide-title">
+                {"Empty Fields"}
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText className={classes.errorModal} id="calc-error-dialog-slide-description">
+                    Please fill out all fields to calculate the chance of a snow day.
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={this.handleClose} color="primary">
+                  OK
+                </Button>
+              </DialogActions>
+            </Dialog>
+          </footer>
+        </div>
       </div>
     );
   }
 }
 
-export default App;
+App.propTypes = {
+  classes: PropTypes.object.isRequired,
+};
+
+export default withStyles(styles)(App);
