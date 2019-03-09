@@ -8,7 +8,6 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
-import MenuItem from '@material-ui/core/MenuItem';
 import PropTypes from 'prop-types';
 import TextField from '@material-ui/core/TextField';
 import { withStyles } from '@material-ui/core/styles';
@@ -50,53 +49,21 @@ const styles = theme => ({
   },
 });
 
-const states = [
-  {
-    value: 'Michigan',
-    label: 'MI',
-  },
-];
-
-const cities = [
-  {
-    value: 'Rochester',
-    label: 'Rochester',
-  },
-];
-
-const schools = [
-  {
-    value: 'Rochester Adams',
-    label: 'Rochester Adams',
-  },
-  {
-    value: 'Oakland University',
-    label: 'Oakland University',
-  },
-  {
-    value: 'Oakland Community College',
-    label: 'Oakland Community College',
-  },
-];
-
 class App extends React.Component {
   state = {
     successModalOpen: false,
     errorModalOpen: false,
     percent: 54, //static value for now
-    states: '',
-    cities: '',
-    schools: '',
-    date: 'mm/dd/yyyy',
+    name: ''
   };
 
   handleClickOpen = () => {
-    //Check if all fields are filled before opening dialog
-    if(this.state.states === '' || this.state.cities === '' || this.state.schools === '' || this.state.date === 'mm/dd/yyyy') {
+    //Check if field is filled before opening dialog
+    if(this.state.name === '') {
       this.setState({ errorModalOpen: true });
     } else {
       this.setState({ successModalOpen: true });
-    }
+    } 
   };
 
   handleClose = () => {
@@ -122,85 +89,19 @@ class App extends React.Component {
               <h3 className="snowday-header"> Snow Day Calculator </h3>
               <i className="app-logo far fa-snowflake" alt="logo"></i>
             </div>
-            <p className="prompt"> Input the following information to determine your chance of a snow day.</p>
+            <p className="prompt"> Input your zip code to determine your chance of a snow day.</p>
           </header>
           <footer className="app-footer">
           <form className={classes.container} noValidate autoComplete="off">
           <TextField
-          id="date"
-          label="Select a date"
-          type="date"
+          id="outlined-name"
+          label="Zip Code"
           className={classes.textField}
-		      value={this.state.date}
-		      onChange={this.handleChange('date')}
-		      required
-          InputLabelProps={{
-          shrink: true,
-          }}
+          value={this.state.name}
+          onChange={this.handleChange('name')}
+          margin="normal"
+          variant="outlined"
           />
-          <TextField
-          id="standard-select-state"
-          select
-          label="Select your state"
-          className={classes.textField}
-          value={this.state.states}
-          onChange={this.handleChange('states')}
-          required
-          SelectProps={{
-            MenuProps: {
-              className: classes.menu,
-            },
-          }}
-          margin="normal"
-        >
-          {states.map(option => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </TextField>
-        <TextField
-          id="standard-select-city"
-          select
-          label="Select your city"
-          className={classes.textField}
-          value={this.state.cities}
-          onChange={this.handleChange('cities')}
-		      required
-          SelectProps={{
-            MenuProps: {
-              className: classes.menu,
-            },
-          }}
-          margin="normal"
-        >
-          {cities.map(option => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </TextField>
-        <TextField
-          id="standard-select-school"
-          select
-          label="Select your school"
-          className={classes.textField}
-          value={this.state.schools}
-          onChange={this.handleChange('schools')}
-		      required
-          SelectProps={{
-            MenuProps: {
-              className: classes.menu,
-            },
-          }}
-          margin="normal"
-        >
-          {schools.map(option => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </TextField>
         </form>
             <Button variant="contained" color="primary" className={classes.calc} onClick={this.handleClickOpen}>
               Calculate</Button>
