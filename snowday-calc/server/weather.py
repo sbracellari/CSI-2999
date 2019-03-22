@@ -1,20 +1,55 @@
-import requests
-import csv
+from requests import get
+from requests.exceptions import RequestException
+from contextlib import closing
 from bs4 import BeautifulSoup
+from flask import Flask, render_template, jsonify, request, Response
+from flask_cors import CORS
+import json
+import requests
 
-page = requests.get("https://forecast.weather.gov/MapClick.php?lat=42.68342000000007&lon=-83.13701999999995#.XGJV91xKiUk")
-soup = BeautifulSoup(page.content, 'html.parser')
-today = soup.find(id="current-conditions-body")
-items = today.find_all(class_="pull-left")
-now = items[0]
+DEBUG = True
+app = Flask(__name__)
+CORS(app)
 
-temp = now.find(class_="myforecast-current-lrg").get_text()
+percent = 0
+temp_current = 0
+temp_feels = 0
+temp_high = 0
+temp_low = 0
 
-print(temp)
+@app.route('/zipcode', methods=['POST', 'GET'])
+def getZip():
+    zipcode = request.json.get('zipcode')
+    url=get("https://weather.com/weather/today/l/"+zipcode+":4:US")
+    soup = BeautifulSoup(url.content, 'html.parser')
+    today = soup.find(id="main-Nowcard-92c6937d-b8c3-4240-b06c-9da9a8b0d22b")
+    weather = today.find(class_="today_nowcard")
 
-with open('weather_file.csv', mode='w') as csv_file:
-    fieldnames = ['temp']
-    writer = csv.DictWriter(csv_file, fieldnames)
+    temp_current = today.find(class_="today_nowcard-temp").get_text()[:-1]
+    temp_feels = today.find(class_="today_nowcard-feels").get_text()[11:-1]
+    temp_hilo = today.find_all(class_="deg-hilo-nowcard")
+    temp_high = temp_hilo[0].get_text()
 
-    writer.writeheader()
-    writer.writerow({'temp': temp})
+    if temp_high == "--": 
+        temp_high = temp_current
+    else:
+        temp_high = temp_hilo[0].get_text()[:-1]
+
+    temp_low = temp_hilo[1].get_text()[:-1]
+
+    temp_current = int(temp_current)
+    temp_feels = int(temp_feels)
+    temp_high = int(temp_high)
+    temp_low = int(temp_low)
+
+    weather = today.find(class_="today_nowcard-sidecar component panel")
+    rightnow = today.find_all(class_="")
+        
+    percent = { 
+        "percent": temp_low
+    }
+    
+    return jsonify(percent)
+   
+if __name__ == "__main__":
+    app.run(debug=True)

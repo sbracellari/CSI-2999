@@ -49,22 +49,55 @@ const styles = theme => ({
   },
 });
 
+
 class App extends React.Component {
-  state = {
-    successModalOpen: false,
-    errorModalOpen: false,
-    percent: 54, //static value for now
-    name: ''
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      successModalOpen: false,
+      errorModalOpen: false,
+      name: "",
+      percent: 5
+    }; 
+  }
 
   handleClickOpen = () => {
     //Check if field is filled before opening dialog
-    if(this.state.name === '') {
+    if(this.state.name === "") {
       this.setState({ errorModalOpen: true });
     } else {
+      var zip = {zipcode: this.state.name };
+      fetch("http://localhost:5000/zipcode", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(zip)
+      });
+      fetch("http://localhost:5000/zipcode", {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      })
+      .then(res => res.json())
+      .then(
+        (result) => {
+          this.setState({
+            percent: result.percent
+          });
+        },
+        (error) => {
+          this.setState({
+            error
+          });
+        }
+      )
       this.setState({ successModalOpen: true });
-    } 
-  };
+    }
+  };  
 
   handleClose = () => {
     this.setState({ successModalOpen: false });
@@ -95,7 +128,7 @@ class App extends React.Component {
           <form className={classes.container} noValidate autoComplete="off">
           <TextField
           id="outlined-name"
-          label="Zip Code"
+          label="Zipcode"
           className={classes.textField}
           value={this.state.name}
           onChange={this.handleChange('name')}
@@ -117,7 +150,7 @@ class App extends React.Component {
               </DialogTitle>
               <DialogContent>
                 <DialogContentText className={classes.successModal} id="calc-dialog-slide-description">
-                    Based on your input, the chance of a snow day on {this.state.date} for {this.state.schools} is {this.state.percent}%.
+                    Based on your input, the chance of a snow day for {this.state.name} is {this.state.percent}%.
                 </DialogContentText>
                 <DialogContentText className={classes.progress}>
                     {this.state.percent}%
