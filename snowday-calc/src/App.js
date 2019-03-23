@@ -55,9 +55,10 @@ class App extends React.Component {
     super(props);
     this.state = {
       successModalOpen: false,
+      warningModalOpen: false,
       errorModalOpen: false,
       name: "",
-      percent: 5
+      percent: 200
     }; 
   }
 
@@ -74,33 +75,24 @@ class App extends React.Component {
           'Accept': 'application/json'
         },
         body: JSON.stringify(zip)
-      });
-      fetch("http://localhost:5000/zipcode", {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
       })
       .then(res => res.json())
-      .then(
-        (result) => {
+      .then((result) => {
+        if (result.percent === '?') {
+          this.setState({warningModalOpen: true})
+        } else {
           this.setState({
-            percent: result.percent
-          });
-        },
-        (error) => {
-          this.setState({
-            error
-          });
+            percent: result.percent,
+            successModalOpen: true
+          })
         }
-      )
-      this.setState({ successModalOpen: true });
+      })
     }
-  };  
+  };    
 
   handleClose = () => {
     this.setState({ successModalOpen: false });
+    this.setState({ warningModalOpen: false});
     this.setState({ errorModalOpen: false });
   };
  
@@ -134,6 +126,12 @@ class App extends React.Component {
           onChange={this.handleChange('name')}
           margin="normal"
           variant="outlined"
+          onKeyPress={(event) => {
+            if (event.key === 'Enter') {
+              this.handleClickOpen();
+              event.preventDefault();
+            }
+          }}
           />
         </form>
             <Button variant="contained" color="primary" className={classes.calc} onClick={this.handleClickOpen}>
@@ -159,6 +157,27 @@ class App extends React.Component {
               <DialogActions>
                 <Button onClick={this.handleClose} color="primary">
                   Close
+                </Button>
+              </DialogActions>
+            </Dialog>
+            <Dialog 
+              open={this.state.warningModalOpen}
+              TransitionComponent={Slide}
+              keepMounted
+              onClose={this.handleClose}
+              aria-labelledby="calc-warning-dialog-slide-title"
+              aria-describedby="calc-warning-dialog-slide-description">
+              <DialogTitle id="calc-warning-dialog-slide-title">
+                {"Invalid Zipcode"}
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText className={classes.errorModal} id="calc-warning-dialog-slide-description">
+                    The zipcode you entered is invalid. Please enter a valid zipcode.
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={this.handleClose} color="primary">
+                  OK
                 </Button>
               </DialogActions>
             </Dialog>
