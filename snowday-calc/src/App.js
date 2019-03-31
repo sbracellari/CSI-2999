@@ -1,6 +1,5 @@
 import React from 'react';
 import './App.css';
-
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -49,7 +48,6 @@ const styles = () => ({
     color: '#0d387c',
   },
 });
-
 
 class App extends React.Component {
   constructor(props) {
@@ -126,24 +124,24 @@ class App extends React.Component {
           </header>
           <footer className='app-footer'>
           <form className={classes.container} noValidate autoComplete='off'>
-          <TextField
-          id='outlined-name'
-          label='Zipcode'
-          className={classes.textField}
-          value={this.state.zipcode}
-          onChange={this.handleChange('zipcode')}
-          margin='normal'
-          variant='outlined'
-          //disable default behavior of 'enter' key (default behavior refreshes the page)
-          //now, hitting 'enter' will have the same behavior as clicking calculate
-          onKeyPress={(event) => { 
-            if (event.key === 'Enter') {
-              this.handleClickOpen();
-              event.preventDefault();
-            }
-          }}
-          />
-        </form>
+            <TextField
+              id='outlined-name'
+              label='Zipcode'
+              className={classes.textField}
+              value={this.state.zipcode}
+              onChange={this.handleChange('zipcode')}
+              margin='normal'
+              variant='outlined'
+              //disable default behavior of 'enter' key (default behavior refreshes the page)
+              //now, hitting 'enter' will have the same behavior as clicking calculate
+              onKeyPress={(event) => { 
+                if (event.key === 'Enter') {
+                  this.handleClickOpen();
+                  event.preventDefault();
+                }
+              }}
+            />
+          </form>
             <Button variant='contained' color='primary' className={classes.calc} onClick={this.handleClickOpen}>
               Calculate</Button>
             <Dialog //the success dialog
