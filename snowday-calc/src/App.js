@@ -12,7 +12,8 @@ import PropTypes from 'prop-types';
 import TextField from '@material-ui/core/TextField';
 import { withStyles } from '@material-ui/core/styles';
 
-const styles = theme => ({
+//styling
+const styles = () => ({
   calc: {
     fontSize: 'medium',
     marginTop: 20,
@@ -49,30 +50,62 @@ const styles = theme => ({
   },
 });
 
+
 class App extends React.Component {
-  state = {
-    successModalOpen: false,
-    errorModalOpen: false,
-    percent: 54, //static value for now
-    name: ''
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      successModalOpen: false,
+      warningModalOpen: false,
+      errorModalOpen: false,
+      zipcode: '',
+      percent: 200
+    }; 
+  }
 
   handleClickOpen = () => {
-    //Check if field is filled before opening dialog
-    if(this.state.name === '') {
+    //check if field is filled before opening dialog
+    //if the field is empty, an error dialog will be displayed
+    if(this.state.zipcode === '') {
       this.setState({ errorModalOpen: true });
-    } else {
-      this.setState({ successModalOpen: true });
-    } 
-  };
+    //if the field is not empty, send a post request to the python server
+    //with the provided information
+    } else { 
+      var zip = {zipcode: this.state.zipcode };
+      fetch('http://localhost:5000/zipcode', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(zip)
+      })
+      .then(res => res.json())
+      .then((result) => {
+        //if the information was invalid, the python server will catch this
+        //error and return a question mark, and a warning dialog will be displayed
+        if (result.percent === '?') {
+          this.setState({warningModalOpen: true})
+        //if the provided inforamtion was valid, the success dialog will be diaplayed
+        } else {
+          this.setState({
+            percent: result.percent,
+            successModalOpen: true
+          })
+        }
+      })
+    }
+  };    
 
   handleClose = () => {
     this.setState({ successModalOpen: false });
+    this.setState({ warningModalOpen: false});
     this.setState({ errorModalOpen: false });
   };
  
-  handleChange = name => event => {
-    this.setState({ [name]: event.target.value });
+  //to handle the input
+  handleChange = zipcode => event => {
+    this.setState({ [zipcode]: event.target.value });
   };
 
   render() {
@@ -80,72 +113,101 @@ class App extends React.Component {
 
     return (
       <div>
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossOrigin="anonymous"></link>
+        <link rel='stylesheet' href='https://use.fontawesome.com/releases/v5.7.1/css/all.css' integrity='sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr' crossOrigin='anonymous'></link>
         
-        <div className="App">
-          <header className="app-header">
+        <div className='App'>
+          <header className='app-header'>
             <div>
-              <i className="app-logo far fa-snowflake" alt="logo"></i>
-              <h3 className="snowday-header"> Snow Day Calculator </h3>
-              <i className="app-logo far fa-snowflake" alt="logo"></i>
+              <i className='app-logo far fa-snowflake' alt='logo'></i>
+              <h3 className='snowday-header'> Snow Day Calculator </h3>
+              <i className='app-logo far fa-snowflake' alt='logo'></i>
             </div>
-            <p className="prompt"> Input your zip code to determine your chance of a snow day.</p>
+            <p className='prompt'> Input your zip code to determine your chance of a snow day.</p>
           </header>
-          <footer className="app-footer">
-          <form className={classes.container} noValidate autoComplete="off">
+          <footer className='app-footer'>
+          <form className={classes.container} noValidate autoComplete='off'>
           <TextField
-          id="outlined-name"
-          label="Zip Code"
+          id='outlined-name'
+          label='Zipcode'
           className={classes.textField}
-          value={this.state.name}
-          onChange={this.handleChange('name')}
-          margin="normal"
-          variant="outlined"
+          value={this.state.zipcode}
+          onChange={this.handleChange('zipcode')}
+          margin='normal'
+          variant='outlined'
+          //disable default behavior of 'enter' key (default behavior refreshes the page)
+          //now, hitting 'enter' will have the same behavior as clicking calculate
+          onKeyPress={(event) => { 
+            if (event.key === 'Enter') {
+              this.handleClickOpen();
+              event.preventDefault();
+            }
+          }}
           />
         </form>
-            <Button variant="contained" color="primary" className={classes.calc} onClick={this.handleClickOpen}>
+            <Button variant='contained' color='primary' className={classes.calc} onClick={this.handleClickOpen}>
               Calculate</Button>
-            <Dialog
+            <Dialog //the success dialog
               open={this.state.successModalOpen}
               TransitionComponent={Slide}
               keepMounted
               onClose={this.handleClose}
-              aria-labelledby="calc-dialog-slide-title"
-              aria-describedby="calc-dialog-slide-description">
-              <DialogTitle id="calc-dialog-slide-title">
-                {"Your chances of a snow day are..."}
+              aria-labelledby='calc-dialog-slide-title'
+              aria-describedby='calc-dialog-slide-description'>
+              <DialogTitle id='calc-dialog-slide-title'>
+                {'Your chances of a snow day are...'}
               </DialogTitle>
               <DialogContent>
-                <DialogContentText className={classes.successModal} id="calc-dialog-slide-description">
-                    Based on your input, the chance of a snow day on {this.state.date} for {this.state.schools} is {this.state.percent}%.
+                <DialogContentText className={classes.successModal} id='calc-dialog-slide-description'>
+                    Based on your input, the chance of a snow day for {this.state.zipcode} is {this.state.percent}%.
                 </DialogContentText>
                 <DialogContentText className={classes.progress}>
                     {this.state.percent}%
                 </DialogContentText>
               </DialogContent>
               <DialogActions>
-                <Button onClick={this.handleClose} color="primary">
+                <Button onClick={this.handleClose} color='primary'>
                   Close
                 </Button>
               </DialogActions>
             </Dialog>
-            <Dialog 
+            <Dialog //the warning dialog
+              open={this.state.warningModalOpen}
+              TransitionComponent={Slide}
+              keepMounted
+              onClose={this.handleClose}
+              aria-labelledby='calc-warning-dialog-slide-title'
+              aria-describedby='calc-warning-dialog-slide-description'>
+              <DialogTitle id='calc-warning-dialog-slide-title'>
+                {'Invalid Zipcode'}
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText className={classes.errorModal} id='calc-warning-dialog-slide-description'>
+                    The zipcode you entered is invalid. Please enter a valid zipcode.
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={this.handleClose} color='primary'>
+                  OK
+                </Button>
+              </DialogActions>
+            </Dialog>
+            <Dialog //the error dialog
               open={this.state.errorModalOpen}
               TransitionComponent={Slide}
               keepMounted
               onClose={this.handleClose}
-              aria-labelledby="calc-error-dialog-slide-title"
-              aria-describedby="calc-error-dialog-slide-description">
-              <DialogTitle id="calc-error-dialog-slide-title">
-                {"Empty Fields"}
+              aria-labelledby='calc-error-dialog-slide-title'
+              aria-describedby='calc-error-dialog-slide-description'>
+              <DialogTitle id='calc-error-dialog-slide-title'>
+                {'Empty Fields'}
               </DialogTitle>
               <DialogContent>
-                <DialogContentText className={classes.errorModal} id="calc-error-dialog-slide-description">
+                <DialogContentText className={classes.errorModal} id='calc-error-dialog-slide-description'>
                     Please fill out all fields to calculate the chance of a snow day.
                 </DialogContentText>
               </DialogContent>
               <DialogActions>
-                <Button onClick={this.handleClose} color="primary">
+                <Button onClick={this.handleClose} color='primary'>
                   OK
                 </Button>
               </DialogActions>
