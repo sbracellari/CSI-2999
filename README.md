@@ -1,9 +1,13 @@
 # snowday-calculator
-this project was built with create-react-app. 
+This project was built with create-react-app. 
 
-it is a python webapp built to collect weather information and determine if there will be a snowday in a specified area.
+It is a python webapp built to collect weather information and determine if there will be a snowday in a specified area.
 
 ---
-# build process
-to build, first run an `npm install`, then run `npm start` in the root of the project.
-this project is hosted locally on `localhost:3000`.
+# What You Need
+This project uses npm, node, python3, flask, flask-cors, flask requests, and bs4. Be sure to have all of these things installed before proceeding. You must also have `JAVA_HOME` defined. 
+
+# Build Process
+To start up the back end, navigate to the `/server` folder and run a `python weather.py`. This will run the python script and start up a server on `localhost:5000/zipcode`.
+
+To build the frontend, navigate to the root of the project and run an `npm install`, then run an `npm start`. This will start the frontend on `localhost:3000`.
