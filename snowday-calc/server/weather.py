@@ -111,6 +111,8 @@ def formula():
                 value_warn = 45
             elif warning_text == 'Wind Chill Watch':
                 value_warn = 15
+            else:
+                value_warn = 0
 
         # quick check to make sure the percent is a valid number
         number = value_feels + value_real + value_warn
