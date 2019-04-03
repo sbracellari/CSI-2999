@@ -92,28 +92,30 @@ def formula():
             value_feels = -15
 
         # get the winter weather warning if there is one
-        #warning = soup.find('span', attrs={'class': 'warning-text'})
+        warning = soup.find('span', attrs={'class': 'warning-text'})
         
-        #if warning == None:
-        #    value_warn = 0
-        #else: 
-        #    warning_text = warning.text.strip()
+        if warning == None:
+            value_warn = 0
+        else: 
+            warning_text = warning.text.strip()
 
-        #    elif warning_text == 'Winter Weather Warning':
-        #        value_warn = 65
-        #    elif warning_text == 'Winter Weather Advisory':
-        #        value_warn = 45
-        #    elif warning_text == 'Winter Wather Watch':
-        #        value_warn = 15
-        #    elif warning_text == 'Wind Chill Warning':
-        #        value_warn = 65
-        #    elif warning_text == 'Wind Chill Advisory':
-        #        value_warn = 45
-        #    elif warning_text == 'Wind Chill Watch':
-        #        value_warn = 15
+            if warning_text == 'Winter Weather Warning':
+                value_warn = 65
+            elif warning_text == 'Winter Weather Advisory':
+                value_warn = 45
+            elif warning_text == 'Winter Wather Watch':
+                value_warn = 15
+            elif warning_text == 'Wind Chill Warning':
+                value_warn = 65
+            elif warning_text == 'Wind Chill Advisory':
+                value_warn = 45
+            elif warning_text == 'Wind Chill Watch':
+                value_warn = 15
+            else:
+                value_warn = 0
 
         # quick check to make sure the percent is a valid number
-        number = value_feels + value_real
+        number = value_feels + value_real + value_warn
         if number < 0:
             number = 0
         elif number > 100:
