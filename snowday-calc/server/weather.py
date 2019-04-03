@@ -28,9 +28,9 @@ def formula():
             cols = row.find_all('td')
             cols = [element.text.strip() for element in cols]
 
-            day = cols[1]
-            temp = cols[3]
-            feels = cols[4]
+            date = cols[1]
+
+            day = re.sub('\n','', date)
 
             if day == '7:00 amMon' or day == '7:00 amTue' or day == '7:00 amWed' or day == '7:00 amThu' or day == '7:00 amFri' or day == '7:00 amSat' or day == '7:00 amSun':
                 temperature = cols[3]
@@ -93,21 +93,24 @@ def formula():
 
         # get the winter weather warning if there is one
         #warning = soup.find('span', attrs={'class': 'warning-text'})
-        #warning_text = warning.text.strip()
+        
         #if warning == None:
-            #value_warn = 0
-        #elif warning_text == 'Winter Weather Warning':
-            #value_warn = 65
-        #elif warning_text == 'Winter Weather Advisory':
-            #value_warn = 45
-        #elif warning_text == 'Winter Wather Watch':
-            #value_warn = 15
-        #elif warning_text == 'Wind Chill Warning':
-            #value_warn = 65
-        #elif warning_text == 'Wind Chill Advisory':
-            #value_warn = 45
-        #elif warning_text == 'Wind Chill Watch':
-            #value_warn = 15
+        #    value_warn = 0
+        #else: 
+        #    warning_text = warning.text.strip()
+
+        #    elif warning_text == 'Winter Weather Warning':
+        #        value_warn = 65
+        #    elif warning_text == 'Winter Weather Advisory':
+        #        value_warn = 45
+        #    elif warning_text == 'Winter Wather Watch':
+        #        value_warn = 15
+        #    elif warning_text == 'Wind Chill Warning':
+        #        value_warn = 65
+        #    elif warning_text == 'Wind Chill Advisory':
+        #        value_warn = 45
+        #    elif warning_text == 'Wind Chill Watch':
+        #        value_warn = 15
 
         # quick check to make sure the percent is a valid number
         number = value_feels + value_real
