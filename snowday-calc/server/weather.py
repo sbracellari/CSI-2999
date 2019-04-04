@@ -1,9 +1,16 @@
-import json, requests, re
+import json, requests, re, psycopg2
 from requests import get
 from bs4 import BeautifulSoup
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
+# connect to database
+conn=psycopg2.connect("host=snowdaycalculator.ctk9e6sh47tc.us-east-2.rds.amazonaws.com dbname=SnowdayCalculator user=ProjectAdmin password=SnowdayCalculator")
+
+# SQL statements
+sql_insert="""INSERT INTO snowday (zipcode, temp_feels, temp_real, winteradvisory) VALUES (%s, %s, %s, %s)"""
+sql_update="""UPDATE snowday SET temp_feels=%s, temp_real=%s, winteradvisory=%s WHERE zipcode=%s"""
+sql_exists="""SELECT EXISTS(SELECT 1 FROM snowday WHERE zipcode=%s)"""
 
 DEBUG = True
 app = Flask(__name__)
@@ -12,10 +19,10 @@ CORS(app) # allow for cross origin requests
 @app.route('/zipcode', methods=['POST', 'GET'])
 def formula():
     try:
-        zipcode = request.json.get('zipcode') # get zipcode from frontend
+        code = request.json.get('zipcode') # get zipcode from frontend
 
         # scraping from weather.com, the location is the provided zipcode
-        page = requests.get('https://weather.com/weather/hourbyhour/l/'+zipcode+':4:US')
+        page = requests.get('https://weather.com/weather/hourbyhour/l/'+code+':4:US')
         soup = BeautifulSoup(page.content, 'html.parser')
 
         table = soup.find('table', attrs={'class': 'twc-table'})
@@ -23,7 +30,7 @@ def formula():
 
         rows = table_body.find_all('tr')
 
-        # getting time of day, temperature, precipitation
+        # getting time of day, real temp, feels like temp
         for row in rows:
             cols = row.find_all('td')
             cols = [element.text.strip() for element in cols]
@@ -41,54 +48,54 @@ def formula():
                 chill = cols[4]
 
         # shorten the string by one character to get rid of degree symbol, then cast to int
-        temp_real = int(temperature[:-1])
-        temp_feels = int(chill[:-1])
+        real = int(temperature[:-1])
+        feels = int(chill[:-1])
 
         # point system to get a snow day percentage
-        if temp_real <= -15:
+        if real <= -15:
             value_real = 40
-        elif temp_real > -15 and temp_real <= -10:
+        elif real > -15 and real <= -10:
             value_real = 30
-        elif temp_real > -10 and temp_real <= -5:
+        elif real > -10 and real <= -5:
             value_real = 15
-        elif temp_real > -5 and temp_real <= -1:
+        elif real > -5 and real <= -1:
             value_real = 5
-        elif temp_real == 0:
-            value_real = 20
-        elif temp_real > 0 and temp_real <= 4:
+        elif real == 0:
+            value_real = 2
+        elif real > 0 and real <= 4:
             value_real = 0
-        elif temp_real > 4 and temp_real <= 9:
+        elif real > 4 and real <= 9:
             value_real = 0
-        elif temp_real > 9 and temp_real <= 14:
+        elif real > 9 and real <= 14:
             value_real = 0
-        elif temp_real > 14 and temp_real <= 19:
+        elif real > 14 and real <= 19:
             value_real = 0
-        elif temp_real > 19 and temp_real <= 24:
+        elif real > 19 and real <= 24:
             value_real = -5
-        elif temp_real > 24:
+        elif real > 24:
             value_real = -10
 
-        if temp_feels <= -15:
+        if feels <= -15:
             value_feels = 20
-        elif temp_feels > -15 and temp_feels <= -10:
+        elif feels > -15 and feels <= -10:
             value_feels = 15
-        elif temp_feels > -10 and temp_feels <= -5:
+        elif feels > -10 and feels <= -5:
             value_feels = 10
-        elif temp_feels > -5 and temp_feels <= -1:
+        elif feels > -5 and feels <= -1:
             value_feels = 5
-        elif temp_feels == 0:
+        elif feels == 0:
             value_feels = 3
-        elif temp_feels > 0 and temp_feels <= 4:
+        elif feels > 0 and feels <= 4:
             value_feels = 0
-        elif temp_feels > 4 and temp_feels <= 9:
+        elif feels > 4 and feels <= 9:
             value_feels = 0
-        elif temp_feels > 9 and temp_feels <= 14:
+        elif feels > 9 and feels <= 14:
             value_feels = 0
-        elif temp_feels > 14 and temp_feels <= 19:
+        elif feels > 14 and feels <= 19:
             value_feels = 0
-        elif temp_feels > 19 and temp_feels <= 24:
+        elif feels > 19 and feels <= 24:
             value_feels = -10
-        elif temp_feels > 24:
+        elif feels > 24:
             value_feels = -15
 
         # get the winter weather warning if there is one
@@ -123,10 +130,25 @@ def formula():
 
         number = str(number)
 
+        # json formatting
         percent = { 
             'percent': number
         }
         
+        # values for SQL statements
+        new_vals = (code, feels, real, warning_text)
+        replace_vals = (feels, real, warning_text)
+        cur = conn.cursor()
+
+        # if the zipcode is already in the table, update its corresponding values
+        if cur.execute(sql_exists, code):
+            cur.excute(sql_update, replace_vals, code)
+        else: # else, add the zipcode and its corresponding values
+            cur.execute(sql_insert, new_vals)
+
+        conn.commit() # save changes to database
+        conn.close() # close database connection
+
         return jsonify(percent) # return jsonified percent back to frontend
     except: # error handling in the event that the user inputs an invalid zip code
         if table is None:
@@ -134,6 +156,6 @@ def formula():
                 'percent': '?'
             }
         return jsonify(percent) # return jsonified question mark back to frontend
-   
+
 if __name__ == '__main__':
     app.run(debug=True)
