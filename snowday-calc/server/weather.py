@@ -47,7 +47,7 @@ def formula():
                 temperature = cols[3]
                 chill = cols[4]
 
-        # shorten the string by one character to get rid of degree symbol, then cast to int
+        # formatting
         real = int(temperature[:-1])
         feels = int(chill[:-1])
 
@@ -101,6 +101,7 @@ def formula():
         # get the winter weather warning if there is one
         warning = soup.find('span', attrs={'class': 'warning-text'})
         
+        warning_text = ''
         if warning == None:
             value_warn = 0
         else: 
@@ -135,11 +136,26 @@ def formula():
             'percent': number
         }
         
-        cur = conn.cursor()
-        cur.execute(exists, (code))
-        print(4) # this line doesn't execute, whyyy
+        cur = conn.cursor() # create cursor
+        cur.execute(exists, [code]) # check to see if the zipcode is already in the database
+
+        warning_exists = False
+        if (warning_text is not ''):
+            warning_text = True
+
+        if(cur.fetchone()[0]): # if the zipcode already exists in the database, update its corresponding values
+            try:
+                cur.execute(update, [feels, real, warning_exists, code])
+            except Exception as e:
+                print(e)
+        else: # else, insert new values
+            try:
+                cur.execute(insert, [feels, real, warning_exists, code])
+            except Exception as e:
+                print(e)
 
         conn.commit() # save changes to database
+        cur.close() # close cursor connection
 
         return jsonify(percent) # return jsonified percent back to frontend
     except: # error handling in the event that the user inputs an invalid zip code
