@@ -8,9 +8,9 @@ from flask_cors import CORS
 conn=psycopg2.connect("host=snowdaycalculator.ctk9e6sh47tc.us-east-2.rds.amazonaws.com dbname=SnowdayCalculator user=ProjectAdmin password=SnowdayCalculator")
 
 # SQL statements
-sql_insert="""INSERT INTO snowday (zipcode, temp_feels, temp_real, winteradvisory) VALUES (%s, %s, %s, %s)"""
-sql_update="""UPDATE snowday SET temp_feels=%s, temp_real=%s, winteradvisory=%s WHERE zipcode=%s"""
-sql_exists="""SELECT EXISTS(SELECT 1 FROM snowday WHERE zipcode=%s)"""
+exists="""SELECT EXISTS(SELECT 1 FROM snowday WHERE zipcode=%s)"""
+insert="""INSERT INTO snowday (temp_feels, temp_real, winteradvisory, zipcode) VALUES (%s, %s, %s, %s)"""
+update="""UPDATE snowday SET temp_feels=%s, temp_real=%s, winteradvisory=%s WHERE zipcode=%s"""
 
 DEBUG = True
 app = Flask(__name__)
@@ -135,19 +135,11 @@ def formula():
             'percent': number
         }
         
-        # values for SQL statements
-        new_vals = (code, feels, real, warning_text)
-        replace_vals = (feels, real, warning_text)
         cur = conn.cursor()
-
-        # if the zipcode is already in the table, update its corresponding values
-        if cur.execute(sql_exists, code):
-            cur.excute(sql_update, replace_vals, code)
-        else: # else, add the zipcode and its corresponding values
-            cur.execute(sql_insert, new_vals)
+        cur.execute(exists, (code))
+        print(4) # this line doesn't execute, whyyy
 
         conn.commit() # save changes to database
-        conn.close() # close database connection
 
         return jsonify(percent) # return jsonified percent back to frontend
     except: # error handling in the event that the user inputs an invalid zip code
