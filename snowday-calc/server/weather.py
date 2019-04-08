@@ -111,13 +111,25 @@ def formula():
                 value_warn = 65
             elif warning_text == 'Winter Weather Advisory':
                 value_warn = 45
-            elif warning_text == 'Winter Wather Watch':
+            elif warning_text == 'Winter Weather Watch':
                 value_warn = 15
             elif warning_text == 'Wind Chill Warning':
                 value_warn = 65
             elif warning_text == 'Wind Chill Advisory':
                 value_warn = 45
             elif warning_text == 'Wind Chill Watch':
+                value_warn = 15
+            elif warning_text == 'Winter Storm Warning':
+                value_warn = 65
+            elif warning_text == 'Winter Storm Advisory':
+                value_warn = 45
+            elif warning_text == 'Winter Storm Watch':
+                value_warn = 15
+            elif warning_text == 'Blizzard Warning':
+                value_warn = 65
+            elif warning_text == 'Blizzard Advisory':
+                value_warn = 45
+            elif warning_text == 'Blizzard Watch':
                 value_warn = 15
             else:
                 value_warn = 0
