@@ -153,7 +153,7 @@ def formula():
 
         warning_exists = False
         if (warning_text is not ''):
-            warning_text = True
+            warning_exists = True
 
         if(cur.fetchone()[0]): # if the zipcode already exists in the database, update its corresponding values
             try:
