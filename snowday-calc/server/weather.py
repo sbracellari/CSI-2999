@@ -5,7 +5,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 # connect to database
-conn=psycopg2.connect("host=snowdaycalculator.ctk9e6sh47tc.us-east-2.rds.amazonaws.com dbname=SnowdayCalculator user=ProjectAdmin password=SnowdayCalculator")
+conn=psycopg2.connect("host=**REMOVED** dbname=**REMOVED** user=**REMOVED** password=**REMOVED**")
 
 # SQL statements
 exists="""SELECT EXISTS(SELECT 1 FROM snowday WHERE zipcode=%s)"""
