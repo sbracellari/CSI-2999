@@ -57,6 +57,7 @@ class App extends React.Component {
       warningModalOpen: false,
       errorModalOpen: false,
       zipcode: '',
+      exception: '',
       percent: 200
     }; 
   }
@@ -80,10 +81,14 @@ class App extends React.Component {
       })
       .then(res => res.json())
       .then((result) => {
+        const regex = /^\d{2}%$/;
         //if the information was invalid, the python server will catch this
         //error and return a question mark, and a warning dialog will be displayed
-        if (result.percent === '?') {
-          this.setState({warningModalOpen: true})
+        if (!regex.test(result.percent)) {
+          this.setState({
+            exception: result.percent,
+            warningModalOpen: true
+          })
         //if the provided inforamtion was valid, the success dialog will be diaplayed
         } else {
           this.setState({
@@ -176,11 +181,11 @@ class App extends React.Component {
               aria-labelledby='calc-warning-dialog-slide-title'
               aria-describedby='calc-warning-dialog-slide-description'>
               <DialogTitle id='calc-warning-dialog-slide-title'>
-                {'Invalid Zipcode'}
+                {'Uh oh!'}
               </DialogTitle>
               <DialogContent>
                 <DialogContentText className={classes.errorModal} id='calc-warning-dialog-slide-description'>
-                    The zipcode you entered is invalid. Please enter a valid zipcode.
+                    {this.state.exception}
                 </DialogContentText>
               </DialogContent>
               <DialogActions>
