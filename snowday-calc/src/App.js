@@ -81,7 +81,7 @@ class App extends React.Component {
       })
       .then(res => res.json())
       .then((result) => {
-        const regex = /^\d{2}%$/;
+        const regex = /^\d+$/;
         //if the information was invalid, the python server will catch this
         //error and return a question mark, and a warning dialog will be displayed
         if (!regex.test(result.percent)) {
